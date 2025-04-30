@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestión de Camas</title>
+  <style>
+
+   @media (max-width: 600px) {
+  .camilla {
+    font-size: 12px;
+    padding: 10px 0;
+  }
+
+  .boton-sala {
+    font-size: 12px;
+    width: 80px;
+    height: 80px;
+  }
+
+  body {
+    background-size: 250px;
+  }
+}
+   body {
+  background-color: #e0f0ff;
+  background-image: url('logo-mcr.png');
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: 300px;
+  background-attachment: fixed;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 20px;
+}
+
+    h1 {
+      text-align: center;
+      font-size: 28px;
+      margin-bottom: 30px;
+    }
+
+    .menu-salas {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 30px;
+    }
+
+    .boton-sala {
+      background-color: #1e88e5;
+      color: white;
+      width: 100px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.3s;
+      text-align: center;
+    }
+
+    .boton-sala.inactiva {
+      background-color: #b0bec5;
+    }
+
+    .boton-sala:hover {
+      background-color: #1565c0;
+    }
+
+    .camillas {
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+      gap: 10px;
+      margin-bottom: 40px;
+    }
+
+    .camilla {
+      background-color: #d32f2f;
+      color: white;
+      border-radius: 5px;
+      padding: 15px 0;
+      text-align: center;
+      font-weight: bold;
+      font-size: 14px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .camilla.disponible {
+      background-color: #4caf50;
+    }
+
+    @media (max-width: 600px) {
+      .camilla {
+        font-size: 12px;
+        padding: 10px 0;
+      }
+
+      .boton-sala {
+        font-size: 12px;
+        width: 80px;
+        height: 80px;
+      }
+
+      body {
+        background-size: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Gestión de Camas</h1>
+
+  <div class="menu-salas" id="menuSalas"></div>
+  <div id="contenedorCamillas"></div>
+
+  <script>
+    const salas = [
+      {
+        nombre: "Medicina de Hombres",
+        rango: [401, 446],
+        etiquetas: {
+          401: "Infectó", 402: "Infectó", 403: "Infectó", 404: "Infectó",
+          405: "Infectó", 406: "Infectó", 407: "Infectó",
+          411: "Neumo", 412: "Neumo", 413: "Neumo", 414: "Neumo",
+          427: "Neuro",428:" Neuro", 429: "Neuro", 430: "Neuro"
+        }
+      },
+      {
+        nombre: "Cirugía de Mujeres",
+        rango: [340, 383],
+        etiquetas: {
+          341:" Oncologia", 342:"Oncologia", 343: "Oncologia", 344:"Oncologia",
+          
+          361:"Uro",362:"Uro",363:"Uro", 364:"Uro",
+
+          365:" Neurociru ", 366:"Neurociru", 367: "Neurociru", 368:"Neurociru",
+          369:" Neurociru ", 370:"Neurociru", 371: "Neurociru", 372:"Neurociru",
+
+          373:" Aneurisma", 374:"Aneurisma",375: "Aneurisma", 376: "Aneurims",
+          377: "Vascular",378: "Vascular", 379: "Vascular", 380: "Vascular",
+
+          381:"Plastica",382:"Plastica",383:"Plastica",
+          
+        }
+      },
+      {
+        nombre: "Ortopedia de Mujeres",
+        rango: [301, 340],
+        etiquetas: {
+          301: "Aislado", 302: "Aislado", 303: "Aislado", 304: "Aislado"
+        }
+      },
+      {
+        nombre: "Cirugía  A (Especialidades)",
+        rango: [441, 475],
+        etiquetas: {
+          441: "Quemados", 442:"Quemados", 443: "Quemados",
+
+          444: "Adolescente", 445: "Adolescente", 446: "Adolescente", 447: "Adolescente",
+          448: "Adolescente", 449: "Adolescente", 450: "Adolescente", 451: "Adolescente",
+
+          452: "Adultos", 453: "Adultos", 454: "Adultose", 455: "Adultos",
+
+
+          456: "Fournier", 457: "Fournier", 458: "Fournier", 459: "Fournier",
+
+          460: "Uro", 461: "Uro", 462: "Uro", 463: "Uro", 464: "Uro", 465: "Uro", 466: "Uro", 467: "Uro",
+          468: "Vascular", 469: "Vascular", 470: "Vascular", 471: "Vascular",
+          472: "Vascular", 473: "Vascular", 474: "Vascular", 475: "Vascular"
+        }
+      },
+
+
+      {
+        nombre: "Medicina de Mujeres", // no entiendo que hice aca :v
+        rango: [301, 346],
+        etiquetas: {
+          301: "Infectó", 302: "Infectó", 303: "Infectó", 304: "Infectó", 305: "Infectó", 306: "Infectó",
+          307: "Aislado", 308: "Aislado", 309: "Aislado", 310: "Aislado",
+          331: "Neurología", 332: "Neurología", 333: "Neurología", 334: "Neurología"
+        }
+      },
+      
+      {
+        
+        nombre: "Nefrología",
+        rango: [363, 382],
+        etiquetas: {
+          363: "", 364: "", 365: "", 366: "", 367: "", 368: "",
+          369: "", 370: "", 371: "", 372: "", 373: "", 374: "",
+          375: "", 376: "", 377: "", 378: "", 379: "",  
+          324: "", 325: "", 326: "", 327: "", 328: "", 329: "", 330: "",
+          331: "", 332: "", 333: "", 334: "", 335: "", 336: "", 337: "",
+          338: "", 339: "", 340: "", 341: ""
+        }
+      
+      
+      },
+      {
+        
+        nombre: "Hematología",
+        rango: [347, 362],
+        etiquetas: {
+          "324": "", "325": "", "326": "", "327": "", "328": "", "329": "", "330": "",
+        "331": "", "332": "", "333": "", "334": "", "335": "", "336": "", "337": "",
+        "338": "", "339": "", "340": "", "341": ""
+        }
+    
+      },
+
+      {
+  nombre: " Cirugia de hombres ",
+  rango: [450, 492],
+  etiquetas: {
+    457: "Fournier", 458: "Fournier", 459: "Fournier",
+    467: "Neurociru", 468:"Neurociru", 469: "Neurociru",
+    470: "Neurociru", 471:"Neurociru", 472: "Neurociru",
+    473: "Neurociru", 474:"Neurociru", 475: "Neurociru",
+    476: "Neurociru", 477:"Neurociru", 478: "Neurociru",
+    479: "Neurociru", 480:"Neurociru", 481: "Neurociru",
+    482: "Neurociru", 
+    487: "Plastica", 488:"Plastica", 489: "Plastica",
+    490: "Quemados"
+  }
+},
+
+
+      {
+        
+        nombre: " Ortopedia Hombres ",
+        rango: [401, 440],
+        etiquetas: {
+          
+        }
+    
+      }
+
+    ];
+
+    const menu = document.getElementById("menuSalas");
+    const contenedor = document.getElementById("contenedorCamillas");
+
+    let salaVisible = null;
+
+    function cargarEstadoSala(nombreSala) {
+      const data = localStorage.getItem(nombreSala);
+      return data ? JSON.parse(data) : Array(100).fill(false);
+    }
+
+    function guardarEstadoSala(nombreSala, estado) {
+      localStorage.setItem(nombreSala, JSON.stringify(estado));
+    }
+
+    salas.forEach(sala => {
+      const boton = document.createElement("button");
+      boton.className = "boton-sala";
+      boton.textContent = sala.nombre;
+      menu.appendChild(boton);
+
+      const estado = cargarEstadoSala(sala.nombre);
+
+      const grid = document.createElement("div");
+      grid.className = "camillas";
+      grid.id = sala.nombre.replace(/\s+/g, "_");
+
+      const camillas = [];
+      for (let i = sala.rango[0]; i <= sala.rango[1]; i++) {
+        const etiqueta = sala.etiquetas[i] || "";
+        camillas.push({ num: i, etiqueta });
+      }
+
+      camillas.forEach(camilla => {
+        const div = document.createElement("div");
+        div.className = "camilla";
+        div.textContent = camilla.etiqueta ? `${camilla.num}\n${camilla.etiqueta}` : `${camilla.num}`;
+
+        div.addEventListener("click", () => {
+          estado[camilla.num - sala.rango[0]] = !estado[camilla.num - sala.rango[0]];
+          div.classList.toggle("disponible");
+          guardarEstadoSala(sala.nombre, estado);
+        });
+
+        if (estado[camilla.num - sala.rango[0]]) {
+          div.classList.add("disponible");
+        }
+
+        grid.appendChild(div);
+      });
+
+      contenedor.appendChild(grid);
+
+      boton.addEventListener("click", () => {
+  if (salaVisible === grid) {
+    // Ocultar la sala y resetear todos los botones a azul
+    grid.style.display = "none";
+    salaVisible = null;
+    document.querySelectorAll(".boton-sala").forEach(b => b.classList.remove("inactiva"));
+  } else {
+    // Ocultar todas las salas y mostrar esta
+    document.querySelectorAll(".camillas").forEach(div => div.style.display = "none");
+    document.querySelectorAll(".boton-sala").forEach(b => b.classList.add("inactiva"));
+    boton.classList.remove("inactiva");
+    grid.style.display = "grid";
+    salaVisible = grid;
+  }
+});
+
+    });
+  </script>
+</body>
+</html>
