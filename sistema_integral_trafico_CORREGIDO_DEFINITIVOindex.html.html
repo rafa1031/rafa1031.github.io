@@ -1,0 +1,301 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema Integral de Tráfico</title>
+
+<style>
+body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto;
+    background:#f2f4f7;
+    margin:0;
+    padding:15px;
+}
+
+h1{text-align:center;font-size:20px;margin-bottom:15px;}
+
+.card{
+    background:#fff;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:15px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.08);
+}
+
+input, select{
+    width:100%;
+    padding:12px;
+    margin-bottom:10px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    font-size:16px;
+}
+
+button.main{
+    width:100%;
+    padding:10px;
+    border:none;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:bold;
+    background:#007aff;
+    color:white;
+}
+
+.alerta{color:#ff3b30;font-weight:bold;}
+
+.estado-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:8px;
+    font-size:12px;
+}
+
+.estado-label{flex:1;}
+
+.estado-btn{
+    width:22px;
+    height:22px;
+    border-radius:6px;
+    border:none;
+}
+
+.rojo{background:#ff3b30;}
+.amarillo{background:#ffcc00;}
+.verde{background:#34c759;}
+
+.grid{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap:10px;
+}
+
+.tarjeta{
+    background:#fafafa;
+    padding:12px;
+    border-radius:14px;
+    font-size:12px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.05);
+}
+
+.footer{
+    font-size:12px;
+    background:#ffffff;
+    padding:12px;
+    border-radius:10px;
+    margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🚛 Sistema Integral de Tráfico</h1>
+
+<div class="card">
+<h3>🔍 Consulta de Furgón</h3>
+<input list="inventario" id="consultaFurgon" placeholder="Número de furgón" oninput="consultar()">
+<datalist id="inventario"></datalist>
+<div id="infoFurgon"></div>
+</div>
+
+<div class="card">
+<h3>📋 Nueva Asignación</h3>
+<input list="inventario" id="furgonAsignar" placeholder="Número de furgón">
+
+<select id="agencia">
+<option value="">Seleccione agencia</option>
+<option>Guatemala</option>
+<option>Salvador</option>
+<option>Nicaragua</option>
+<option>Roatán</option>
+<option>Progreso</option>
+<option>Ceiba</option>
+<option>Copán</option>
+<option>Quimistán</option>
+<option>Esperanza</option>
+<option>Comayagua</option>
+<option>Sur</option>
+<option>Tegucigalpa</option>
+<option>Olancho</option>
+<option>Cuatepeque</option>
+<option>Zona Aguirre</option>
+<option>Roman</option>
+<option>Danlí</option>
+</select>
+
+<button class="main" onclick="asignar()">Asignar</button>
+<p id="mensaje"></p>
+</div>
+
+<div class="card">
+<h3>❄ Refrigerados</h3>
+<div id="reefers" class="grid"></div>
+
+<h3>📦 Secos</h3>
+<div id="secos" class="grid"></div>
+</div>
+
+<div class="footer">
+🔴 Pendiente &nbsp;&nbsp; 🟡 En proceso &nbsp;&nbsp; 🟢 Finalizado
+</div>
+
+<script>
+
+const exportaciones = ["Guatemala","Salvador","Nicaragua"];
+
+// INVENTARIO COMPLETO (según datos proporcionados)
+const flota = {};
+
+function agregar(lista,tipo,medida,peso){
+    lista.forEach(n=>{
+        flota[n]={tipo:tipo,medida:medida,peso:peso};
+    });
+}
+
+// Secos 45
+agregar([2059,2079,2098,2061,2080,2099,2062,2081,2100,2063,2082,2101,
+2064,2083,2102,2065,2084,2103,2066,2085,2104,2067,2086,2105,
+2068,2087,2106,2069,2088,2070,2089,2071,2090,2072,2091,2073,
+2092,2074,2093,2075,2094,2076,2095,2077,2096,2078,2097],
+"Seco","45 FT",19529.038);
+
+// Secos 48
+agregar([897,898,900,914,916,923,926,927,929,931,2003,2004,
+2052,2053,2054,2055,2056,2057,2058],
+"Seco","48 FT",21188.748);
+
+// Secos 53
+agregar([906,2032,911,2033,920,2034,933,2035,934,2036,935,2037,
+938,2044,942,2045,2000,2017,2018,2019,2020,2022,2023,2024,
+2029,2030,2031],
+"Seco","53 FT",21188.746);
+
+// Reefer 2 ejes
+agregar([849,873,874,882,883,884,885,886,887,890,891,893,894,896,
+902,903,904,905,907],
+"Reefer","2 Ejes",18829.40);
+
+// Reefer 3 ejes
+agregar([892,895,918,2002,2006,2008,2009,2012,2025,2027,2028,
+2046,2047,2048,2049,2050,2051],
+"Reefer","3 Ejes",21784.48);
+
+// Reparados con peso distinto
+flota[2033].peso=18148.820;
+flota[2057].peso=18148.820;
+flota[897].peso=18829.401;
+flota[898].peso=18829.401;
+flota[926].peso=18143.700;
+
+window.onload=function(){
+    const lista=document.getElementById("inventario");
+    Object.keys(flota).sort((a,b)=>a-b).forEach(f=>{
+        let opt=document.createElement("option");
+        opt.value=f;
+        lista.appendChild(opt);
+    });
+};
+
+function consultar(){
+    const f=document.getElementById("consultaFurgon").value;
+    const info=document.getElementById("infoFurgon");
+
+    if(!flota[f]){
+        info.innerHTML=f?"<p class='alerta'>Furgón no registrado</p>":"";
+        return;
+    }
+
+    const d=flota[f];
+    info.innerHTML=`
+        <strong>${d.tipo}</strong><br>
+        Medida: ${d.medida}<br>
+        Peso máximo: ${d.peso.toLocaleString()} kg
+    `;
+}
+
+let asignaciones=[];
+
+function asignar(){
+    const f=document.getElementById("furgonAsignar").value;
+    const agencia=document.getElementById("agencia").value;
+    const msg=document.getElementById("mensaje");
+
+    if(!flota[f]){
+        msg.innerHTML="Furgón no registrado";
+        msg.className="alerta";
+        return;
+    }
+
+    if(!agencia){
+        msg.innerHTML="Seleccione agencia";
+        msg.className="alerta";
+        return;
+    }
+
+    if(asignaciones.find(a=>a.furgon==f)){
+        msg.innerHTML="Ya asignado";
+        msg.className="alerta";
+        return;
+    }
+
+    const tipoReal=flota[f].tipo;
+
+    if(tipoReal=="Reefer"){
+        asignaciones.push({
+            furgon:f, agencia:agencia, tipo:"Reefer",
+            estados:{
+                bomba:"rojo",
+                mixto:"rojo",
+                devoluciones:"rojo",
+                lavado:"rojo",
+                taller:"rojo",
+                "pre-enfriado":"rojo",
+                cargado:"rojo",
+                despacho:"rojo"
+            }
+        });
+    }else{
+        let estados={ b6:"rojo", tumulo:"rojo", cargado:"rojo", despacho:"rojo" };
+        if(exportaciones.includes(agencia)){
+            estados.lavado="rojo";
+            estados.taller="rojo";
+        }
+        asignaciones.push({ furgon:f, agencia:agencia, tipo:"Seco", estados:estados });
+    }
+
+    msg.innerHTML="";
+    document.getElementById("furgonAsignar").value="";
+    render();
+}
+
+function cambiarEstado(i,k){
+    const orden=["rojo","amarillo","verde"];
+    let actual=orden.indexOf(asignaciones[i].estados[k]);
+    asignaciones[i].estados[k]=orden[(actual+1)%3];
+    render();
+}
+
+function render(){
+    reefers.innerHTML=""; secos.innerHTML="";
+    asignaciones.forEach((a,i)=>{
+        let html=`<div class="tarjeta"><strong>${a.furgon}</strong><br>${a.agencia}<br><br>`;
+        Object.keys(a.estados).forEach(k=>{
+            html+=`<div class="estado-item">
+                    <span class="estado-label">${k.toUpperCase()}</span>
+                    <button class="estado-btn ${a.estados[k]}" onclick="cambiarEstado(${i},'${k}')"></button>
+                   </div>`;
+        });
+        html+="</div>";
+        if(a.tipo=="Reefer"){ reefers.innerHTML+=html; }
+        else{ secos.innerHTML+=html; }
+    });
+}
+
+</script>
+
+</body>
+</html>
